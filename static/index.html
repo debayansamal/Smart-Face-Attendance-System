@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPC Project - Smart Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #323336; 
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .tab-content.hidden {
+            display: none;
+        }
+
+        #video-feed {
+            border: 4px solid #4a4b4e;
+            border-radius: 12px;
+            width: 100%;
+            height: auto;
+            min-height: 300px; 
+            background-color: #242526; 
+            object-fit: cover;
+            transform: scaleX(-1); 
+        }
+        .dark-card {
+            background-color: #3c3d3e;
+            color: #e5e5e5;
+        }
+        .dark-table-header {
+            background-color: #4a4b4e;
+            color: #bdbdbd;
+        }
+        @media (min-width: 768px) {
+            #video-feed {
+                max-width: 700px; 
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8">
+
+    <div class="container mx-auto">
+        <header class="text-center py-6 mb-8 bg-white shadow-lg rounded-xl">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-700">
+                CPC Project - Smart Face Attendance System
+            </h1>
+            <p class="text-md text-gray-500 mt-2">
+                Deep Learning Based Enrollment & Attendance
+            </p>
+        </header>
+
+        <div id="status-message" class="hidden p-4 mb-6 text-sm rounded-lg" role="alert"></div>
+
+        <div class="flex border-b border-gray-200 mb-8">
+            <button id="tab-mark" onclick="showTab('mark')" class="tab-button py-2 px-4 text-center font-medium text-lg border-b-2 border-indigo-600 text-indigo-600 transition duration-300">
+                <i class="lucide-check-circle mr-2"></i> Mark Attendance
+            </button>
+            <button id="tab-enroll" onclick="showTab('enroll')" class="tab-button py-2 px-4 text-center font-medium text-lg text-gray-500 hover:text-indigo-600 hover:border-indigo-300 transition duration-300">
+                <i class="lucide-user-plus mr-2"></i> Face & Data Management
+            </button>
+        </div>
+
+        <main class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
+            
+            <div id="content-mark" class="tab-content">
+                <div class="md:flex md:space-x-8">
+                    <div class="md:w-1/2 flex flex-col items-center">
+                        <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Face Scan</h2>
+                        
+                        <img id="video-feed" src="" alt="Live Camera Feed" class="mb-4 shadow-xl">
+                        
+                        <div id="scan-controls" class="flex flex-col w-full max-w-sm gap-3 mb-6">
+                            <button onclick="handleStartScan()" id="start-scan-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 shadow-md flex items-center justify-center">
+                                <i class="lucide-scan mr-2"></i> Start Scan
+                            </button>
+                            <button onclick="handleStopScan()" id="stop-scan-button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-8 rounded-lg transition duration-300 shadow-md flex items-center justify-center hidden">
+                                <i class="lucide-stop-circle mr-2"></i> Stop Scan
+                            </button>
+                        </div>
+                        
+                        <div class="text-center mb-6 p-3 w-full max-w-sm rounded-xl border border-blue-200 bg-gray-100">
+                            <p class="text-sm font-medium text-gray-500">Currently Recognized:</p>
+                            <p id="recognized-name-display" class="text-2xl font-extrabold text-blue-700 mt-1">
+                                Scan stopped
+                            </p>
+                        </div>
+                        
+                        <button onclick="handleMarkAttendance()" id="mark-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 shadow-xl flex items-center justify-center w-full max-w-sm disabled:opacity-50" disabled>
+                            <i class="lucide-check-circle mr-2"></i> Mark My Attendance
+                        </button>
+                           <p class="text-xs text-gray-500 mt-2">Attendance will be marked for the name currently displayed above.</p>
+                    </div>
+
+                    <div class="md:w-1/2 mt-8 md:mt-0">
+                        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Today's Attendance Record</h2>
+                        
+                        <div class="flex justify-between items-center mb-4">
+                            <button onclick="fetchAttendanceData(true)" class="text-indigo-600 hover:text-indigo-800 font-medium py-2 px-4 border border-indigo-200 rounded-lg transition duration-300 flex items-center">
+                                <i class="lucide-refresh-ccw mr-2"></i> Manual Refresh
+                            </button>
+                            <button onclick="handleClearAttendance()" id="clear-attendance-button" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 shadow-md flex items-center">
+                                <i class="lucide-trash-2 mr-2"></i> Clear Today's
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto shadow-lg rounded-lg border border-gray-100">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-list" class="bg-white divide-y divide-gray-200">
+                                    <tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Loading today's attendance...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-enroll" class="tab-content hidden">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">1. Enroll New User</h2>
+                <p class="text-gray-600 mb-6 border-b pb-4">
+                    Enter your name below and click "Capture Face". 
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 mb-10">
+                    <input type="text" id="enroll-name" placeholder="Enter Full Name" class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-gray-800" required>
+                    <button onclick="handleAddFace()" id="enroll-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-md flex items-center justify-center">
+                        <i class="lucide-camera mr-2"></i> Capture Face
+                    </button>
+                </div>
+
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 mt-6">2. Manage Enrolled Faces</h2>
+                <p class="text-gray-600 mb-4">
+                    Manage existing facial recognition data. "Refresh the server after deleting!"
+                </p>
+
+                <div class="flex flex-col md:flex-row md:space-x-6">
+                    <div class="w-full md:w-1/2 p-4 border border-red-300 bg-red-50 rounded-lg shadow-inner mb-6 md:mb-0">
+                        <h3 class="text-lg font-bold text-red-700 flex items-center">
+                            <i class="lucide-alert-triangle mr-2"></i> Clear ALL Training Data
+                        </h3>
+                        <p class="text-sm text-red-600 mt-2">
+                            This permanently deletes all names and face samples from the system. 
+                        </p>
+                        <button onclick="handleDeleteAllFaces()" class="mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 shadow-md w-full disabled:opacity-50" id="delete-all-button">
+                            Delete ALL Enrolled Data
+                        </button>
+                    </div>
+
+                    <div class="w-full md:w-1/2 p-4 border border-gray-300 bg-gray-50 rounded-lg shadow-inner">
+                        <h3 class="text-lg font-bold text-gray-700 mb-3 flex items-center">
+                            <i class="lucide-list mr-2"></i> Enrolled Users
+                        </h3>
+                        <ul id="enrolled-faces-list" class="space-y-2 max-h-40 overflow-y-auto">
+                            <li class="text-sm text-gray-500">Click refresh to load list...</li>
+                        </ul>
+                        <button onclick="fetchEnrolledNames()" class="mt-3 text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center">
+                            <i class="lucide-refresh-ccw mr-1"></i> Refresh List
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const statusMessage = document.getElementById('status-message');
+        const attendanceList = document.getElementById('attendance-list');
+        const videoFeed = document.getElementById('video-feed');
+        const recognizedNameDisplay = document.getElementById('recognized-name-display');
+        const markButton = document.getElementById('mark-button');
+        const startScanButton = document.getElementById('start-scan-button');
+        const stopScanButton = document.getElementById('stop-scan-button');
+        const enrolledFacesList = document.getElementById('enrolled-faces-list');
+        
+        const BASE_URL = 'http://127.0.0.1:8000';
+        let nameFetcherInterval = null;
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(el => {
+                el.classList.remove('border-indigo-600', 'text-indigo-600');
+                el.classList.add('text-gray-500', 'hover:text-indigo-600', 'hover:border-indigo-300');
+            });
+
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            const button = document.getElementById(`tab-${tabId}`);
+            button.classList.add('border-indigo-600', 'text-indigo-600');
+            button.classList.remove('text-gray-500', 'hover:text-indigo-600', 'hover:border-indigo-300');
+
+            if (tabId === 'mark') {
+                handleStopScan(false);
+                fetchAttendanceData();
+            } else {
+                handleStopScan(false);
+                if (tabId === 'enroll') {
+                    fetchEnrolledNames();
+                }
+            }
+        }
+        
+        function startNameFetcher() {
+            if (nameFetcherInterval) clearInterval(nameFetcherInterval);
+            nameFetcherInterval = setInterval(fetchRecognizedName, 500); 
+        }
+
+        function stopNameFetcher() {
+            if (nameFetcherInterval) clearInterval(nameFetcherInterval);
+            nameFetcherInterval = null;
+        }
+
+        async function fetchRecognizedName() {
+            try {
+                const response = await fetch(`${BASE_URL}/api/recognized_name`);
+                const result = await response.json();
+                const currentName = result.name;
+
+                if (response.ok && result.status === 'success') {
+                    recognizedNameDisplay.textContent = currentName;
+                    
+                    recognizedNameDisplay.classList.remove('text-blue-700', 'text-red-700', 'text-gray-500', 'text-orange-500');
+                    markButton.disabled = true;
+
+                    if (currentName.includes("Error") || currentName.includes("missing") || currentName.includes("no faces")) {
+                        recognizedNameDisplay.classList.add('text-red-700');
+                    } else if (currentName === "No face detected" || currentName === "Scan stopped" || currentName === "Initializing..." || currentName === "Ready") {
+                        recognizedNameDisplay.classList.add('text-gray-500');
+                    } else if (currentName === "Unknown") {
+                        recognizedNameDisplay.classList.add('text-orange-500');
+                    } else {
+                        recognizedNameDisplay.classList.add('text-blue-700'); 
+                        markButton.disabled = false;
+                    }
+
+                }
+            } catch (error) {
+                console.error('Failed to fetch recognized name:', error);
+                recognizedNameDisplay.textContent = 'Server Disconnected';
+                recognizedNameDisplay.classList.add('text-red-700');
+                stopNameFetcher();
+            }
+        }
+
+        function showStatus(message, type = 'success') {
+            statusMessage.textContent = message;
+            statusMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
+            if (type === 'error') {
+                statusMessage.classList.add('bg-red-100', 'text-red-700');
+            } else if (type === 'warning') {
+                statusMessage.classList.add('bg-yellow-100', 'text-yellow-700');
+            } else {
+                statusMessage.classList.add('bg-green-100', 'text-green-700');
+            }
+            setTimeout(() => {
+                statusMessage.classList.add('hidden');
+            }, 8000);
+        }
+
+        function toggleButton(buttonId, isLoading = false) {
+            const button = document.getElementById(buttonId);
+            if (isLoading) {
+                button.disabled = true;
+                button.dataset.originalText = button.innerHTML;
+                button.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing...';
+            } else {
+                button.disabled = false;
+                button.innerHTML = button.dataset.originalText;
+            }
+        }
+        
+        async function handleStartScan() {
+            toggleButton('start-scan-button', true);
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/start_scan`, { method: 'POST' });
+                const result = await response.json();
+                
+                if (response.ok && result.status === 'success') {
+                    showStatus("Camera activated. Please face the webcam.", 'success');
+                    
+                    videoFeed.src = `${BASE_URL}/video_feed`;
+                    startNameFetcher();
+
+                    startScanButton.classList.add('hidden');
+                    stopScanButton.classList.remove('hidden');
+                    markButton.disabled = true; 
+                    
+                } else {
+                    showStatus(`Error starting scan: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Network Error: Could not start scan. Is the server running on port 8000?`, 'error');
+            } finally {
+                toggleButton('start-scan-button', false);
+            }
+        }
+        
+        async function handleStopScan(callApi = true) {
+            
+            if (callApi) {
+                try {
+                    await fetch(`${BASE_URL}/api/stop_scan`, { method: 'POST' });
+                } catch (error) {
+                    console.error("Failed to call stop_scan API:", error);
+                }
+            }
+            
+            videoFeed.src = ''; 
+            stopNameFetcher();
+            
+            startScanButton.classList.remove('hidden');
+            stopScanButton.classList.add('hidden');
+            markButton.disabled = true;
+            recognizedNameDisplay.textContent = 'Scan stopped';
+            recognizedNameDisplay.classList.remove('text-red-700', 'text-blue-700', 'text-orange-500');
+            recognizedNameDisplay.classList.add('text-gray-500');
+        }
+
+
+        async function handleAddFace() {
+            const nameInput = document.getElementById('enroll-name');
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                showStatus("Please enter a name before capturing.", 'error');
+                return;
+            }
+
+            toggleButton('enroll-button', true);
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/add_face`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    showStatus(`Success! ${result.message}`, 'success');
+                    nameInput.value = '';
+                    fetchEnrolledNames();
+                } else {
+                    showStatus(`Error during enrollment: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Network Error: Could not connect to the server. Is server.py running?`, 'error');
+            } finally {
+                toggleButton('enroll-button', false);
+            }
+        }
+
+        async function handleMarkAttendance() {
+            toggleButton('mark-button', true);
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/mark_attendance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    showStatus(`Attendance Status: ${result.message}`, 'success');
+                    fetchAttendanceData(); 
+                    handleStopScan(false); 
+                } else {
+                    showStatus(`Error marking attendance: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Network Error: Could not connect to the server. Is server.py running?`, 'error');
+            } finally {
+                toggleButton('mark-button', false);
+            }
+        }
+        
+        async function fetchAttendanceData(showLoading = false) {
+            if (showLoading) {
+                 attendanceList.innerHTML = '<tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Refreshing data...</td></tr>';
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/api/attendance_data`);
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    renderAttendanceList(result.data);
+                } else {
+                    renderAttendanceList([]);
+                }
+            } catch (error) {
+                renderAttendanceList([]);
+            }
+        }
+
+        function renderAttendanceList(data) {
+            attendanceList.innerHTML = '';
+            
+            if (data.length === 0) {
+                attendanceList.innerHTML = '<tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No attendance recorded for today.</td></tr>';
+                return;
+            }
+
+            data.slice().reverse().forEach((entry, index) => {
+                const row = document.createElement('tr');
+                row.classList.add(index % 2 === 0 ? 'bg-white' : 'bg-gray-50');
+                
+                const nameCell = document.createElement('td');
+                nameCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'font-medium', 'text-gray-900');
+                nameCell.textContent = entry.NAME;
+
+                const timeCell = document.createElement('td');
+                timeCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-500');
+                timeCell.textContent = entry.TIME;
+
+                row.appendChild(nameCell);
+                row.appendChild(timeCell);
+                attendanceList.appendChild(row);
+            });
+        }
+        
+        async function fetchEnrolledNames() {
+            enrolledFacesList.innerHTML = '<li class="text-sm text-gray-500">Loading...</li>';
+            try {
+                const response = await fetch(`${BASE_URL}/api/manage/enrolled_names`);
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    renderEnrolledNames(result.names);
+                } else {
+                    renderEnrolledNames([]);
+                }
+            } catch (error) {
+                enrolledFacesList.innerHTML = '<li class="text-sm text-red-500">Error fetching names. Check server status.</li>';
+            }
+        }
+        
+        function renderEnrolledNames(names) {
+            enrolledFacesList.innerHTML = '';
+            if (names.length === 0) {
+                enrolledFacesList.innerHTML = '<li class="text-sm text-gray-500">No faces currently enrolled.</li>';
+                return;
+            }
+
+            names.forEach(name => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('flex', 'justify-between', 'items-center', 'text-sm', 'border-b', 'border-gray-200', 'py-1');
+                listItem.innerHTML = `
+                    <span class="font-medium text-gray-900">${name}</span>
+                    <button data-name="${name}" onclick="handleDeleteIndividualFace(this.dataset.name)" class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-100 transition duration-150">
+                        <i class="lucide-x-circle w-4 h-4"></i>
+                    </button>
+                `;
+                enrolledFacesList.appendChild(listItem);
+            });
+        }
+
+        async function handleDeleteAllFaces() {
+            if (!confirm('WARNING: Are you sure you want to delete ALL enrolled face data? This action is irreversible.')) {
+                return;
+            }
+
+            toggleButton('delete-all-button', true);
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/manage/delete_all_faces`, { method: 'POST' });
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    showStatus(`Success! ${result.message}`, 'warning');
+                    fetchEnrolledNames();
+                } else {
+                    showStatus(`Error clearing data: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Network Error: Could not connect to server.`, 'error');
+            } finally {
+                toggleButton('delete-all-button', false);
+            }
+        }
+
+        async function handleDeleteIndividualFace(name) {
+            if (!confirm(`Are you sure you want to delete data for ${name}? You must restart the server after this.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/manage/delete_face/${name}`, { method: 'POST' });
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    showStatus(`Success! ${result.message}`, 'warning');
+                    fetchEnrolledNames();
+                } else {
+                    showStatus(`Error deleting face: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Network Error: Could not connect to server.`, 'error');
+            }
+        }
+
+        async function handleClearAttendance() {
+            if (!confirm('Are you sure you want to clear the attendance record for TODAY? This cannot be undone.')) {
+                return;
+            }
+            
+            const buttonId = 'clear-attendance-button';
+            toggleButton(buttonId, true);
+
+            try {
+                const response = await fetch(`${BASE_URL}/api/manage/clear_attendance`, { method: 'POST' });
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    showStatus(`Success! ${result.message}`, 'success');
+                    fetchAttendanceData(true);
+                } else {
+                    showStatus(`Error clearing attendance: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Network Error: Could not connect to server.`, 'error');
+            } finally {
+                toggleButton(buttonId, false);
+            }
+        }
+
+
+        setInterval(() => {
+            if (!document.getElementById('content-mark').classList.contains('hidden')) {
+                fetchAttendanceData();
+            }
+        }, 5000);
+
+        window.onload = () => {
+            showTab('mark');
+        };
+        
+        const iconMap = {
+            'lucide-user-plus': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-4"/><path d="M18 7v4"/></svg>`,
+            'lucide-check-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M9 12l2 2 4-4"/></svg>`,
+            'lucide-camera': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`,
+            'lucide-refresh-ccw': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 2v5h-5"/><path d="M4 12a8 8 0 0 1 14.07-4.66L20 7"/><path d="M4 12a8 8 0 0 0 14.07 4.66L20 17"/><path d="M4 17h5l3-3"/></svg>`,
+            'lucide-scan': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>`,
+            'lucide-stop-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 9h6v6H9z"/></svg>`,
+            'lucide-trash-2': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`,
+            'lucide-alert-triangle': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h18.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>`,
+            'lucide-list': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`,
+            'lucide-x-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`
+        };
+        document.querySelectorAll('[class^="lucide-"]').forEach(el => {
+            const iconKey = Array.from(el.classList).find(cls => cls.startsWith('lucide-'));
+            if (iconKey && iconMap[iconKey]) {
+                el.innerHTML = iconMap[iconKey] + el.innerHTML;
+            }
+        });
+
+    </script>
+</body>
+</html>
