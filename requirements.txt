@@ -1,6 +1,8 @@
-Flask
-gunicorn
+Flask              
+gunicorn            
+streamlit          
+streamlit-autorefresh
+pandas
 numpy
-scikit-learn
 opencv-python
-panda
+scikit-learn
