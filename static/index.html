@@ -8,106 +8,158 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Martel+Sans:wght@200;300;400;600;700;800;900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
         
-        body {
-            font-family: 'Inter', sans-serif;
-            
-            background-color: #252525; 
-            color: #E0E0E0; 
-        }
-        .container {
-            max-width: 1200px;
-        }
-        .tab-content.hidden {
-            display: none;
+        :root {
+            --bg-body: #252525;
+            --text-body: #E0E0E0;
+            --bg-surface: #434343;
+            --bg-input: #242424;
+            --bg-tab-active: #1E1E1E;
+            --bg-table-even: #1E1E1E;
+            --bg-table-odd: #242424;
+            --main-text-color: #ffffff;
+            --border-color: #555555; 
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --secondary-text: #A0A0A0; 
+            --placeholder-color: #5A5A5A;
         }
 
-        
-        .dark-surface {
-            background-color: #434343; 
+        .light-theme {
+            --bg-body: #252525;
+            --text-body: #333333;
+            --bg-surface: #FFFFFF;
+            --bg-input: #FFFFFF;
+            --bg-tab-active: #E5E7EB;
+            --bg-table-even: #FFFFFF;
+            --bg-table-odd: #F9FAFB;
+            --main-text-color: #1F2937; 
+            --border-color: #D1D5DB; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --secondary-text: #6B7280; 
+            --placeholder-color: #9CA3AF;
         }
         
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body); 
+            color: var(--text-body); 
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        
+        .container { max-width: 1200px; }
+        .tab-content.hidden { display: none; }
+        .themed-surface {
+            background-color: var(--bg-surface);
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: background-color 0.5s ease, box-shadow 0.5s ease;
+        }
+        .maintext {
+            color: var(--main-text-color); 
+            font-size: 3.2rem; 
+            font-weight: 800; 
+            font-family: sans-serif; 
+            transition: color 0.5s ease;
+        }
+        
+        input[type="text"] {
+            background-color: var(--bg-input);
+            border-color: var(--border-color);
+            color: var(--text-body);
+            transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease;
+        }
+        input[type="text"]::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        .themed-table-header {
+            background-color: var(--bg-surface);
+            color: var(--secondary-text);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .themed-row-even {
+            background-color: var(--bg-table-even);
+        }
+        .themed-row-odd {
+            background-color: var(--bg-table-odd);
+        }
         
         #video-feed {
-            border: 2px solid #ffffff; 
+            border: 2px solid var(--border-color);
             border-radius: 12px;
             width: 100%;
             height: auto;
             min-height: 300px; 
-            background-color: #000000; 
+            background-image: url('static/images/smile.png'); 
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
             object-fit: cover;
             transform: scaleX(-1); 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); 
+            box-shadow: 0 4px 10px var(--shadow-color); 
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+        
+        .tab-button-inactive {
+            color: var(--secondary-text);
+            border-bottom-color: transparent;
+            background-color: transparent;
+        }
+        .tab-button-active {
+            color: #818CF8;
+            border-bottom-color: #6366F1;
+            background-color: var(--bg-tab-active);
         }
 
-        
-        .maintext {
-            color: #ffffff; 
-            font-size: 3.2rem; 
-            font-weight: 800; 
-            font-family: serif; 
-        }
-        
-        
-        .dark-table-header {
-            background-color: #d3d0d0;
-            color: #BBBBBB;
-        }
-        .dark-table-body-row-even {
-            background-color: #1E1E1E; 
-        }
-        .dark-table-body-row-odd {
-            background-color: #242424; 
+        .theme-button-style {
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 130px;
         }
 
-        
-        .text-indigo-600 { color: #818CF8; } 
-        .border-indigo-600 { border-color: #818CF8; }
-        .hover\:text-indigo-600:hover { color: #A5B4FC; }
-        .bg-blue-600 { background-color: #3B82F6; }
-        .hover\:bg-blue-700:hover { background-color: #2563EB; }
-        .bg-green-700 { background-color: #10B981; } 
-        .hover\:bg-green-900:hover { background-color: #059669; }
-        .bg-red-500 { background-color: #EF4444; }
-        .hover\:bg-red-600:hover { background-color: #DC2626; }
-        .bg-indigo-600 { background-color: #4F46E5; }
-        .hover\:bg-indigo-700:hover { background-color: #4338CA; }
 
         @media (min-width: 768px) {
-            #video-feed {
-                max-width: 700px; 
-            }
+            #video-feed { max-width: 700px; }
         }
     </style>
 </head>
 <body class="min-h-screen p-4 sm:p-8">
 
-    <div class="container mx-auto">
-        <header class="text-center py-8 mb-10 dark-surface shadow-xl rounded-xl">
+    <div class="container mx-auto relative">
+        <header class="text-center py-8 mb-10 themed-surface rounded-xl relative">
             <h1 class="maintext tracking-wider">
-               Smart Face Attendance System
+                Smart Face Attendance System
             </h1>
             <p class="text-lg text-gray-400 mt-2 font-light">
                 Deep Learning Based Enrollment & Attendance
             </p>
+            
+            <button id="theme-toggle" onclick="toggleTheme()" 
+                    class="absolute top-4 right-4 sm:top-6 sm:right-6 rounded-full 
+                            bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg 
+                            transition-all duration-300 theme-button-style rounded-xl">
+            </button>
         </header>
 
         <div id="status-message" class="hidden p-4 mb-8 text-sm rounded-lg" role="alert"></div>
 
-        <div class="flex border-b border-gray-700 mb-10">
-            <button id="tab-mark" onclick="showTab('mark')" class="tab-button py-3 px-6 text-center font-semibold text-xl border-b-4 border-indigo-500 text-indigo-400 transition duration-300 bg-[#1E1E1E]">
+        <div class="flex border-b mb-10 transition-colors duration-500" style="border-color: var(--border-color);">
+            <button id="tab-mark" onclick="showTab('mark')" class="tab-button py-3 px-6 text-center font-semibold text-xl border-b-4 transition duration-300 tab-button-active">
                 <i class="lucide-check-circle mr-2"></i> Mark Attendance
             </button>
-            <button id="tab-enroll" onclick="showTab('enroll')" class="tab-button py-3 px-6 text-center font-semibold text-xl text-gray-500 hover:text-indigo-400 hover:border-indigo-700 transition duration-300">
+            <button id="tab-enroll" onclick="showTab('enroll')" class="tab-button py-3 px-6 text-center font-semibold text-xl transition duration-300 tab-button-inactive">
                 <i class="lucide-user-plus mr-2"></i> Face & Data Management
             </button>
         </div>
 
-        <main class="dark-surface p-6 sm:p-10 rounded-2xl shadow-2xl">
+        <main class="themed-surface p-6 sm:p-10 rounded-2xl shadow-2xl">
             
             <div id="content-mark" class="tab-content">
                 <div class="lg:flex lg:space-x-12">
                     <div class="lg:w-7/12 flex flex-col items-center">
-                        <h2 class="text-3xl font-medium text-white mb-6 tracking-wide">Face Scan</h2>
+                        <h2 class="text-3xl font-medium mb-6 tracking-wide" style="color: var(--text-body);">Face Scan</h2>
                         
                         <img id="video-feed" src="" alt="Live Camera Feed" class="mb-6 shadow-2xl">
                         
@@ -120,8 +172,8 @@
                             </button>
                         </div>
                         
-                        <div class="text-center mb-8 p-4 w-full max-w-md rounded-xl border border-gray-700 bg-[#242424]">
-                            <p class="text-sm font-medium text-gray-400 mb-1">Currently Recognized:</p>
+                        <div class="text-center mb-8 p-4 w-full max-w-md rounded-xl border transition-colors duration-500" style="border-color: var(--border-color); background-color: var(--bg-table-odd);">
+                            <p class="text-sm font-medium" style="color: var(--secondary-text);">Currently Recognized:</p>
                             <p id="recognized-name-display" class="text-3xl font-extrabold text-gray-500 mt-1 transition-colors duration-300">
                                 Scan stopped
                             </p>
@@ -130,14 +182,14 @@
                         <button onclick="handleMarkAttendance()" id="mark-button" class="bg-green-600 hover:bg-green-500 text-white font-extrabold py-4 px-8 rounded-xl transition duration-300 shadow-2xl flex items-center justify-center w-full max-w-md text-lg uppercase disabled:opacity-30 disabled:cursor-not-allowed" disabled>
                             <i class="lucide-check-circle mr-3"></i> Mark My Attendance
                         </button>
-                           <p class="text-xs text-gray-500 mt-3 font-light">Attendance will be marked for the name currently displayed above.</p>
+                           <p class="text-xs mt-3 font-light" style="color: var(--secondary-text);">Attendance will be marked for the name currently displayed above.</p>
                     </div>
 
                     <div class="lg:w-5/12 mt-12 lg:mt-0">
-                        <h2 class="text-3xl font-bold text-white mb-6 tracking-wide">Attendance Record</h2>
+                        <h2 class="text-3xl font-bold mb-6 tracking-wide" style="color: var(--text-body);">Attendance Record</h2>
                         
                         <div class="flex justify-between items-center mb-6">
-                            <button onclick="fetchAttendanceData(true)" class="text-indigo-400 hover:text-indigo-300 font-semibold py-2 px-4 border border-gray-700 bg-[#242424] rounded-lg transition duration-300 flex items-center">
+                            <button onclick="fetchAttendanceData(true)" class="text-indigo-600 hover:text-indigo-500 font-semibold py-2 px-4 border transition-colors duration-300 rounded-lg flex items-center" style="border-color: var(--border-color); background-color: var(--bg-table-odd);">
                                 <i class="lucide-refresh-ccw mr-2"></i> Manual Refresh
                             </button>
                             <button onclick="handleClearAttendance()" id="clear-attendance-button" class="bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg transition duration-300 shadow-md flex items-center">
@@ -145,16 +197,16 @@
                             </button>
                         </div>
                         
-                        <div class="overflow-x-auto shadow-xl rounded-lg border border-[#2D2D2D]">
-                            <table class="min-w-full divide-y divide-gray-700">
-                                <thead class="dark-table-header">
+                        <div class="overflow-x-auto shadow-xl rounded-lg border transition-colors duration-500" style="border-color: var(--border-color);">
+                            <table class="min-w-full divide-y" style="border-color: var(--border-color);">
+                                <thead class="themed-table-header">
                                     <tr>
-                                        <th class="px-6 py-4 text-black text-left text-sm font-bold tracking-wider uppercase">Name</th>
-                                        <th class="px-6 py-4 text-black text-left text-sm font-bold tracking-wider uppercase">Time</th>
+                                        <th class="px-6 py-4 text-left text-sm font-bold tracking-wider uppercase">Name</th>
+                                        <th class="px-6 py-4 text-left text-sm font-bold tracking-wider uppercase">Time</th>
                                     </tr>
                                 </thead>
-                                <tbody id="attendance-list" class="divide-y divide-gray-700">
-                                    <tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center dark-table-body-row-even">Loading today's attendance...</td></tr>
+                                <tbody id="attendance-list" class="divide-y" style="border-color: var(--border-color);">
+                                    <tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-center themed-row-even" style="color: var(--secondary-text);">Loading today's attendance...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -163,24 +215,24 @@
             </div>
 
             <div id="content-enroll" class="tab-content hidden">
-                <h2 class="text-3xl font-light text-white mb-4 tracking-wide">1. Enroll New User</h2>
-                <p class="text-gray-400 mb-8 border-b border-gray-700 pb-4 font-light">
+                <h2 class="text-3xl font-light mb-4 tracking-wide" style="color: var(--text-body);">1. Enroll New User</h2>
+                <p class="mb-8 border-b pb-4 font-light transition-colors duration-500" style="color: var(--secondary-text); border-color: var(--border-color);">
                     Enter your name below and click "Capture Face" to enroll your facial data. 
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 mb-12">
-                    <input type="text" id="enroll-name" placeholder="Enter Full Name" class="flex-grow p-4 border border-gray-700 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-[#242424] text-white placeholder-gray-500" required>
+                    <input type="text" id="enroll-name" placeholder="Enter Full Name" class="flex-grow p-4 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" required>
                     <button onclick="handleAddFace()" id="enroll-button" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-6 rounded-lg transition duration-300 shadow-lg flex items-center justify-center uppercase">
                         <i class="lucide-camera mr-3"></i> Capture Face
                     </button>
                 </div>
 
-                <h2 class="text-3xl font-light text-white mb-4 mt-6 tracking-wide">2. Manage Enrolled Faces</h2>
-                <p class="text-gray-400 mb-6 font-light">
+                <h2 class="text-3xl font-light mb-4 mt-6 tracking-wide" style="color: var(--text-body);">2. Manage Enrolled Faces</h2>
+                <p class="mb-6 font-light" style="color: var(--secondary-text);">
                     Manage existing facial recognition data. Restart the server after deleting face data.
                 </p>
 
                 <div class="flex flex-col md:flex-row md:space-x-8">
-                    <div class="w-full md:w-1/2 p-6 border border-red-500 bg-[#2C1A1A] rounded-xl shadow-inner mb-6 md:mb-0">
+                    <div class="w-full md:w-1/2 p-6 border border-red-500 bg-red-900/20 rounded-xl shadow-inner mb-6 md:mb-0 transition-colors duration-500">
                         <h3 class="text-xl font-bold text-red-400 flex items-center mb-2">
                             <i class="lucide-alert-triangle mr-2"></i> Clear ALL Training Data
                         </h3>
@@ -192,14 +244,14 @@
                         </button>
                     </div>
 
-                    <div class="w-full md:w-1/2 p-6 border border-gray-700 bg-[#242424] rounded-xl shadow-inner">
-                        <h3 class="text-xl font-bold text-gray-300 mb-4 flex items-center">
+                    <div class="w-full md:w-1/2 p-6 border rounded-xl shadow-inner transition-colors duration-500" style="border-color: var(--border-color); background-color: var(--bg-table-odd);">
+                        <h3 class="text-xl font-bold mb-4 flex items-center" style="color: var(--text-body);">
                             <i class="lucide-list mr-2"></i> Enrolled Users
                         </h3>
                         <ul id="enrolled-faces-list" class="space-y-3 max-h-48 overflow-y-auto pr-2">
-                            <li class="text-sm text-gray-500">Click refresh to load list...</li>
+                            <li class="text-sm" style="color: var(--secondary-text);">Click refresh to load list...</li>
                         </ul>
-                        <button onclick="fetchEnrolledNames()" class="mt-4 text-sm text-indigo-400 hover:text-indigo-300 font-medium flex items-center">
+                        <button onclick="fetchEnrolledNames()" class="mt-4 text-sm text-indigo-600 hover:text-indigo-500 font-medium flex items-center">
                             <i class="lucide-refresh-ccw mr-1"></i> Refresh List
                         </button>
                     </div>
@@ -210,7 +262,6 @@
     </div>
 
     <script>
-        
         const statusMessage = document.getElementById('status-message');
         const attendanceList = document.getElementById('attendance-list');
         const videoFeed = document.getElementById('video-feed');
@@ -219,23 +270,67 @@
         const startScanButton = document.getElementById('start-scan-button');
         const stopScanButton = document.getElementById('stop-scan-button');
         const enrolledFacesList = document.getElementById('enrolled-faces-list');
-        
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
         const BASE_URL = 'http://127.0.0.1:8000';
         let nameFetcherInterval = null;
 
+        function renderThemeButton(isLight) {
+            const icon = isLight ? '<i class="lucide-sun w-5 h-5"></i>' : '<i class="lucide-moon w-5 h-5"></i>';
+            const text = isLight ? 'Light Mode' : 'Dark Mode';
+            themeToggle.innerHTML = `${icon} ${text}`;
+        }
+
+        function toggleTheme() {
+            if (body.classList.contains('light-theme')) {
+                body.classList.remove('light-theme');
+                renderThemeButton(false);
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('light-theme');
+                renderThemeButton(true);
+                localStorage.setItem('theme', 'light');
+            }
+            updateTabStyles();
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'light') {
+                body.classList.add('light-theme');
+                renderThemeButton(true);
+            } else {
+                body.classList.remove('light-theme');
+                renderThemeButton(false);
+            }
+        }
+        
+        function updateTabStyles() {
+             document.querySelectorAll('.tab-button').forEach(el => {
+                const isActive = el.classList.contains('tab-button-active');
+                el.classList.remove('tab-button-inactive', 'tab-button-active');
+
+                if (isActive) {
+                    el.classList.add('tab-button-active');
+                    el.style.backgroundColor = 'var(--bg-tab-active)';
+                } else {
+                    el.classList.add('tab-button-inactive');
+                    el.style.backgroundColor = 'transparent';
+                }
+                el.style.color = isActive ? '#818CF8' : 'var(--secondary-text)';
+            });
+        }
+
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-button').forEach(el => {
-                
-                el.classList.remove('border-indigo-500', 'text-indigo-400', 'bg-[#1E1E1E]');
-                el.classList.add('text-gray-500', 'hover:text-indigo-400', 'hover:border-indigo-700');
-            });
+            document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('tab-button-active'));
 
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
             const button = document.getElementById(`tab-${tabId}`);
-            
-            button.classList.add('border-indigo-500', 'text-indigo-400', 'bg-[#1E1E1E]');
-            button.classList.remove('text-gray-500', 'hover:text-indigo-400', 'hover:border-indigo-700');
+            button.classList.add('tab-button-active');
+
+            updateTabStyles();
 
             if (tabId === 'mark') {
                 handleStopScan(false);
@@ -266,7 +361,6 @@
 
                 if (response.ok && result.status === 'success') {
                     recognizedNameDisplay.textContent = currentName;
-                    
                     
                     recognizedNameDisplay.classList.remove('text-indigo-400', 'text-red-400', 'text-gray-500', 'text-orange-400');
                     markButton.disabled = true;
@@ -430,7 +524,7 @@
         
         async function fetchAttendanceData(showLoading = false) {
             if (showLoading) {
-                 attendanceList.innerHTML = '<tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center dark-table-body-row-even">Refreshing data...</td></tr>';
+                 attendanceList.innerHTML = `<tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-center themed-row-even" style="color: var(--secondary-text);">Refreshing data...</td></tr>`;
             }
             
             try {
@@ -451,22 +545,25 @@
             attendanceList.innerHTML = '';
             
             if (data.length === 0) {
-                attendanceList.innerHTML = '<tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center dark-table-body-row-even">No attendance recorded for today.</td></tr>';
+                attendanceList.innerHTML = `<tr><td colspan="2" class="px-6 py-4 whitespace-nowrap text-sm text-center themed-row-even" style="color: var(--secondary-text);">No attendance recorded for today.</td></tr>`;
                 return;
             }
 
             data.slice().reverse().forEach((entry, index) => {
                 const row = document.createElement('tr');
                 
-                row.classList.add(index % 2 === 0 ? 'dark-table-body-row-even' : 'dark-table-body-row-odd');
+                row.classList.add(index % 2 === 0 ? 'themed-row-even' : 'themed-row-odd');
                 
                 const nameCell = document.createElement('td');
-                nameCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'font-medium', 'text-gray-300');
+                nameCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'font-medium');
                 nameCell.textContent = entry.NAME;
+                nameCell.style.color = 'var(--text-body)';
 
                 const timeCell = document.createElement('td');
-                timeCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-400');
+                timeCell.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm');
                 timeCell.textContent = entry.TIME;
+                timeCell.style.color = 'var(--secondary-text)';
+
 
                 row.appendChild(nameCell);
                 row.appendChild(timeCell);
@@ -475,7 +572,7 @@
         }
         
         async function fetchEnrolledNames() {
-            enrolledFacesList.innerHTML = '<li class="text-sm text-gray-500">Loading...</li>';
+            enrolledFacesList.innerHTML = `<li class="text-sm" style="color: var(--secondary-text);">Loading...</li>`;
             try {
                 const response = await fetch(`${BASE_URL}/api/manage/enrolled_names`);
                 const result = await response.json();
@@ -493,17 +590,18 @@
         function renderEnrolledNames(names) {
             enrolledFacesList.innerHTML = '';
             if (names.length === 0) {
-                enrolledFacesList.innerHTML = '<li class="text-sm text-gray-500">No faces currently enrolled.</li>';
+                enrolledFacesList.innerHTML = `<li class="text-sm" style="color: var(--secondary-text);">No faces currently enrolled.</li>`;
                 return;
             }
 
             names.forEach(name => {
                 const listItem = document.createElement('li');
                 
-                listItem.classList.add('flex', 'justify-between', 'items-center', 'text-sm', 'border-b', 'border-gray-700', 'py-2');
+                listItem.classList.add('flex', 'justify-between', 'items-center', 'text-sm', 'border-b', 'py-2');
+                listItem.style.borderColor = 'var(--border-color)';
                 listItem.innerHTML = `
-                    <span class="font-medium text-gray-200">${name}</span>
-                    <button data-name="${name}" onclick="handleDeleteIndividualFace(this.dataset.name)" class="text-red-400 hover:text-red-300 p-1 rounded-full hover:bg-red-900 transition duration-150">
+                    <span class="font-medium" style="color: var(--text-body);">${name}</span>
+                    <button data-name="${name}" onclick="handleDeleteIndividualFace(this.dataset.name)" class="text-red-400 hover:text-red-300 p-1 rounded-full hover:bg-red-900/50 transition duration-150">
                         <i class="lucide-x-circle w-4 h-4"></i>
                     </button>
                 `;
@@ -588,30 +686,32 @@
         }, 5000);
 
         window.onload = () => {
+            loadTheme();
             showTab('mark');
         };
-        
         
         const iconMap = {
             'lucide-user-plus': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-4"/><path d="M18 7v4"/></svg>`,
             'lucide-check-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M9 12l2 2 4-4"/></svg>`,
             'lucide-camera': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`,
-            
             'lucide-scan': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg>`,
             'lucide-stop-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 9h6v6H9z"/></svg>`,
             'lucide-trash-2': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>`,
             'lucide-alert-triangle': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h18.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>`,
             'lucide-list': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`,
             'lucide-refresh-ccw': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M21 22v-6h-6"/><path d="M21 16a9 9 0 0 0-9-9H3"/><path d="M3 8a9 9 0 0 0 9 9h9"/></svg>`,
-            'lucide-x-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`
+            'lucide-x-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>`,
+            'lucide-sun': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>`,
+            'lucide-moon': `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`
         };
+
         document.querySelectorAll('[class^="lucide-"]').forEach(el => {
             const iconKey = Array.from(el.classList).find(cls => cls.startsWith('lucide-'));
             if (iconKey && iconMap[iconKey]) {
                 el.innerHTML = iconMap[iconKey] + el.innerHTML;
             }
         });
-
+        
     </script>
 </body>
 </html>
